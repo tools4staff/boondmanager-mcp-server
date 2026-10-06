@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boond-mcp
+  namespace: tools4staff
+spec:
+  # Une seule réplique : les slots d'upload du relais SharePoint sont en
+  # mémoire (un slot ouvert sur un pod doit être réclamé sur le même pod).
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boond-mcp
+  template:
+    metadata:
+      labels:
+        app: boond-mcp
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials-boond-mcp
+      # MCP_HTTP_SHUTDOWN_TIMEOUT_MS (10 s) + sortie forcée (2 s) + marge
+      terminationGracePeriodSeconds: 20
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: mcp
+          # Remplacé par la CI par ghcr.io/tools4staff/boondmanager-mcp-server:sha-<commit>
+          image: boondmanager-mcp-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: boond-mcp-config
+            - secretRef:
+                name: boond-mcp-secrets
+                # Le secret ne sert qu'au relais d'upload : son absence ne doit
+                # pas empêcher le serveur de démarrer.
+                optional: true
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              # Extraction de texte des PDF/DOCX (jusqu'à 5 Mio par document)
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: boond-mcp-service
+  namespace: tools4staff
+spec:
+  selector:
+    app: boond-mcp
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

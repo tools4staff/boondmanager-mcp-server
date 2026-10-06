@@ -1,9 +1,14 @@
 name: Release
 
+# Fork In Fine : désactivé (plus de déclenchement sur les tags v*). Les
+# publications npm / MCP Registry / Docker Hub appartiennent à l'upstream
+# silamir ; le déploiement du fork passe par deploy.yml. Le fichier est gardé
+# tel quel pour limiter les conflits lors des merges depuis l'upstream.
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+  # push:
+  #   tags:
+  #     - "v*"
 
 permissions:
   contents: write

@@ -23,3 +23,6 @@ issue-body.md
 # Local scratch directories (CRM extracts, one-off scripts) — never commit
 .crm-cleaning-tmp/
 *-tmp/
+
+# Secret Kubernetes rempli à la main (voir k8s/README.md) — never commit
+k8s/secrets.yaml
