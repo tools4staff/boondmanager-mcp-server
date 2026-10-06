@@ -1852,6 +1852,13 @@ read-only, confirmation *kept* for deletes. Pinned in
   not say — its first run found that `GET /absences-reports` **requires**
   `startMonth` / `endMonth` (422 otherwise) while the schema declared them
   optional.
+- **Deploy — In Fine fork** (`.github/workflows/deploy.yml` + `k8s/`): push to
+  `infine_main` → test → `ghcr.io/tools4staff/boondmanager-mcp-server:sha-<commit>`
+  → `kubectl apply` on the cluster shared with `tools4staff/contract`
+  (namespace `tools4staff`, Traefik + cert-manager, `https://boond.infine.com/mcp`,
+  OAuth Bearer mode, `KUBE_CONFIG` in the `prod` environment). One replica:
+  upload-relay slots live in memory. Setup in `k8s/README.md`. On this fork
+  `release.yml` is `workflow_dispatch`-only (upstream publishing disabled).
 - **Release** (`.github/workflows/release.yml`): Triggered on `v*` tags. Publishes to:
   - **npm** with `--provenance --access public`
   - **GitHub Releases** with `.mcpb` bundle attached; release body extracted from the matching `## [X.Y.Z]` section of `CHANGELOG.md`

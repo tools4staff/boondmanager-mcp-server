@@ -1,0 +1,30 @@
+# Configuration non sensible du serveur MCP (les secrets du relais SharePoint
+# sont dans boond-mcp-secrets, voir secrets.yaml.template).
+# Le transport HTTP (MCP_TRANSPORT=http, port 3000, chemin /mcp) est déjà
+# fixé par l'image Docker.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: boond-mcp-config
+  namespace: tools4staff
+data:
+  NODE_ENV: "production"
+  # Identifiant de ressource OAuth2 publié dans /.well-known/oauth-protected-resource
+  # et dans le WWW-Authenticate des 401 : doit être l'URL publique exacte.
+  MCP_HTTP_PUBLIC_URL: "https://boond.infine.com/mcp"
+  # Protection DNS rebinding : seul l'hôte public est accepté (/healthz exempté,
+  # donc les sondes Kubernetes passent).
+  MCP_HTTP_ALLOWED_HOSTS: "boond.infine.com"
+  # Valide chaque Bearer auprès de BoondManager avant de traiter la requête :
+  # un token expiré reçoit un 401 invalid_token, que le client MCP transforme
+  # en nouvelle autorisation (sinon l'erreur reste enfouie dans le résultat
+  # d'un tools/call).
+  MCP_HTTP_VALIDATE_TOKEN: "true"
+  # Fork In Fine : la version publiée sur npm par l'upstream n'est pas la nôtre.
+  BOOND_DISABLE_UPDATE_CHECK: "1"
+  # Relais d'upload (boond_documents_upload_slot) via une bibliothèque SharePoint.
+  # Sans les secrets boond-mcp-secrets, l'outil répond que le relais n'est pas
+  # configuré ; le serveur démarre quand même.
+  BOOND_MCP_UPLOAD_RELAY: "sharepoint"
+  BOOND_MCP_SHAREPOINT_TENANT_ID: "1291aa64-c272-43f9-91e4-dda10ede1ea8"
+  BOOND_MCP_SHAREPOINT_LIBRARY: "Documents"
