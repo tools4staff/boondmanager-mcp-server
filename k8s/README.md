@@ -26,7 +26,7 @@ Docker Hub) ne se déclenchent plus sur les tags ; `docker-publish.yml` et
 | ConfigMap | `boond-mcp-config` |
 | Secret (relais d'upload, optionnel) | `boond-mcp-secrets` |
 | Ingress + certificat | `boond-mcp-ingress` / `boond-mcp-tls` |
-| Pull d'image | `ghcr-credentials-boond-mcp` |
+| Pull d'image (secret partagé de l'org) | `ghcr-credentials` |
 
 Endpoints publics : `https://boond.infine.com/mcp` (MCP Streamable HTTP),
 `/.well-known/oauth-protected-resource` (découverte OAuth, RFC 9728),
@@ -53,13 +53,19 @@ déclarer les URL de retour des clients MCP utilisés et les API autorisées.
 1. **Environnement GitHub `prod`** sur ce dépôt, avec le secret
    `KUBE_CONFIG` (le même kubeconfig que pour `tools4staff/contract`).
 
-2. **Secret d'accès à ghcr.io** dans le namespace :
+2. **Secret d'accès à ghcr.io** : l'image est privée. Le déploiement réutilise
+   `ghcr-credentials`, déjà présent dans le namespace et partagé avec launcher,
+   cockpit, tenderly et mycv (token `read:packages` sur les packages de l'org).
+   Rien à créer tant qu'il existe ; sinon :
 
    ```bash
-   kubectl create secret docker-registry ghcr-credentials-boond-mcp \
+   kubectl create secret docker-registry ghcr-credentials \
      --namespace tools4staff --docker-server=ghcr.io \
      --docker-username=<utilisateur> --docker-password=<token read:packages>
    ```
+
+   Un pod en `ImagePullBackOff` signifie que ce token ne couvre pas le package
+   `tools4staff/boondmanager-mcp-server`.
 
 3. **Secrets du relais d'upload SharePoint** (`boond-mcp-secrets`), au choix :
    - **à la main** : `cp k8s/secrets.yaml.template k8s/secrets.yaml`, remplir
