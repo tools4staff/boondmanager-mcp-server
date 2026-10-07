@@ -106,8 +106,8 @@ jobs:
         run: |
           kubectl version --client
           kubectl get namespace tools4staff
-          kubectl get secret ghcr-credentials-boond-mcp -n tools4staff -o name \
-            || { echo "::error::Secret ghcr-credentials-boond-mcp absent du namespace tools4staff (voir k8s/README.md)"; exit 1; }
+          kubectl get secret ghcr-credentials -n tools4staff -o name \
+            || { echo "::error::Secret ghcr-credentials absent du namespace tools4staff (voir k8s/README.md)"; exit 1; }
           if [ "$MANAGE_K8S_SECRET" != "true" ] \
             && ! kubectl get secret boond-mcp-secrets -n tools4staff -o name; then
             echo "::warning::Ni secrets GitHub BOOND_MCP_SHAREPOINT_* ni secret boond-mcp-secrets : le relais d'upload sera désactivé (voir k8s/README.md)"
