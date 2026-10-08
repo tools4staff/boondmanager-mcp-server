@@ -20,6 +20,32 @@ data:
   # en nouvelle autorisation (sinon l'erreur reste enfouie dans le résultat
   # d'un tools/call).
   MCP_HTTP_VALIDATE_TOKEN: "true"
+  # Scopes publiés dans scopes_supported : c'est ce que le client MCP demande
+  # à BoondManager. Doivent tous être cochés dans l'App OAuth Boond
+  # (Administration → Apps → Sécurité), sinon l'autorisation est refusée.
+  # Lecture + écriture métier, sans admin:* (les outils accounts / agencies /
+  # poles / roles… répondront donc 403).
+  BOOND_OAUTH_SCOPES: >-
+    candidates:read candidates:write
+    resources:read resources:write
+    companies:read companies:write
+    contacts:read contacts:write
+    opportunities:read opportunities:write
+    positionings:read positionings:write
+    projects:read projects:write
+    deliveries:read deliveries:write
+    products:read products:write
+    actions:read actions:write
+    invoices:read invoices:write
+    purchases:read purchases:write
+    timesheets:read timesheets:write
+    expenses:read expenses:write
+    absences:read absences:write
+    planning:read planning:write
+    documents:read documents:write
+    candidates:contracts:read candidates:contracts:write
+    resources:contracts:read resources:contracts:write
+    reporting:read
   # Fork In Fine : la version publiée sur npm par l'upstream n'est pas la nôtre.
   BOOND_DISABLE_UPDATE_CHECK: "1"
   # Relais d'upload (boond_documents_upload_slot) via une bibliothèque SharePoint.
